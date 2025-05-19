@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Birthday Cake</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #fceabb, #f8b500);
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            background: linear-gradient(135deg, #ffffffcc, #ffe6e6cc);
+            padding: 40px 60px;
+            border-radius: 25px;
+            box-shadow: 0 12px 30px rgba(233, 78, 119, 0.4);
+            max-width: 700px;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #e94e77;
+            text-shadow: 0 0 10px #e94e77, 0 0 20px #e94e77;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #e94e77, 0 0 20px #e94e77;
+            }
+            to {
+                text-shadow: 0 0 20px #ff6b6b, 0 0 30px #ff6b6b;
+            }
+        }
+
+        /* Popup animation */
+        #birthday-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #birthday-popup.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        #birthday-popup.hide {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #birthday-popup > div {
+            background: white;
+            padding: 30px 50px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px #e94e77;
+            text-align: center;
+            position: relative;
+            max-width: 90vw;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        #birthday-popup.show > div {
+            transform: scale(1);
+        }
+
+        .cake-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .balloons {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: visible;
+            z-index: 0;
+            display: none;
+        }
+
+        .balloon {
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            opacity: 0.8;
+            animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            animation-iteration-count: infinite;
+            animation-name: floatUp;
+            z-index: 0;
+        }
+
+        .balloon:nth-child(1) { background: #ff4d4d; top: 10%; left: -20px; animation-delay: 0s; }
+        .balloon:nth-child(2) { background: #ff944d; top: 20%; left: 10%; animation-delay: 0.5s; }
+        .balloon:nth-child(3) { background: #ffff4d; top: 5%; left: 40%; animation-delay: 1s; }
+        .balloon:nth-child(4) { background: #4dff4d; top: 15%; right: 10%; animation-delay: 1.5s; }
+        .balloon:nth-child(5) { background: #4d94ff; top: 25%; right: -20px; animation-delay: 2s; }
+        .balloon:nth-child(6) { background: #b84dff; top: 40%; left: 5%; animation-delay: 2.5s; }
+        .balloon:nth-child(7) { background: #ff4db8; top: 35%; right: 5%; animation-delay: 0.7s; }
+        .balloon:nth-child(8) { background: #ffb84d; top: 50%; left: 15%; animation-delay: 1.2s; }
+        .balloon:nth-child(9) { background: #b8ff4d; top: 55%; right: 15%; animation-delay: 1.7s; }
+        .balloon:nth-child(10) { background: #4db8ff; top: 65%; left: 10%; animation-delay: 2.2s; }
+        .balloon:nth-child(11) { background: #944dff; top: 70%; right: 10%; animation-delay: 2.7s; }
+        .balloon:nth-child(12) { background: #ff4d94; top: 80%; left: 5%; animation-delay: 3.2s; }
+
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background: #555;
+            transform: translateX(-50%);
+        }
+
+        .cake-image {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            animation: cakeBounce 3s ease-in-out infinite;
+        }
+
+        @keyframes cakeBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .flame {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            width: 12px;
+            height: 20px;
+            background: radial-gradient(circle at center, #ffd700, #ff6b6b);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            filter: drop-shadow(0 0 3px #ffb700);
+            transform: translateX(-50%);
+            animation: flickerFlameEnhanced 1.5s ease 1 alternate;
+        }
+
+        @keyframes flickerFlameEnhanced {
+            0% {
+                filter: drop-shadow(0 0 3px #ffb700);
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 0 6px #ffb700);
+                opacity: 0.85;
+                transform: translateX(-50%) scale(1.1);
+            }
+            100% {
+                filter: drop-shadow(0 0 3px #ffb700);
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        /* Balloons for blast animation */
+        .balloons {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: visible;
+            z-index: 1;
+        }
+
+        .balloon {
+            position: absolute;
+            bottom: -150px;
+            width: 60px;
+            height: 80px;
+            background: red;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            opacity: 0.9;
+            animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            animation-iteration-count: infinite;
+            animation-name: floatUp;
+        }
+
+        .balloon:nth-child(1) { background: #ff4d4d; left: 10%; animation-delay: 0s; }
+        .balloon:nth-child(2) { background: #ff944d; left: 25%; animation-delay: 0.5s; }
+        .balloon:nth-child(3) { background: #ffff4d; left: 40%; animation-delay: 1s; }
+        .balloon:nth-child(4) { background: #4dff4d; left: 55%; animation-delay: 1.5s; }
+        .balloon:nth-child(5) { background: #4d94ff; left: 70%; animation-delay: 2s; }
+        .balloon:nth-child(6) { background: #b84dff; left: 85%; animation-delay: 2.5s; }
+        .balloon:nth-child(7) { background: #ff4db8; left: 15%; animation-delay: 0.7s; }
+        .balloon:nth-child(8) { background: #ffb84d; left: 30%; animation-delay: 1.2s; }
+        .balloon:nth-child(9) { background: #b8ff4d; left: 45%; animation-delay: 1.7s; }
+        .balloon:nth-child(10) { background: #4db8ff; left: 60%; animation-delay: 2.2s; }
+        .balloon:nth-child(11) { background: #944dff; left: 75%; animation-delay: 2.7s; }
+        .balloon:nth-child(12) { background: #ff4d94; left: 90%; animation-delay: 3.2s; }
+
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background: #555;
+            transform: translateX(-50%);
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.9;
+            }
+            50% {
+                transform: translateY(-55vh) translateX(15px) rotate(180deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-110vh) translateX(0) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Balloon blast animation */
+        @keyframes balloonBlast {
+            0% {
+                transform: scale(1) translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5) translate(var(--x), var(--y));
+                opacity: 0;
+            }
+        }
+
+        .balloon.blast {
+            animation-name: balloonBlast !important;
+            animation-duration: 2s !important;
+            animation-fill-mode: forwards !important;
+        }
+
+        /* Candles around the cake */
+        .candle {
+            position: absolute;
+            width: 20px;
+            height: 60px;
+            background: linear-gradient(to top, #ff9f43, #ff6b6b);
+            border-radius: 10px 10px 3px 3px;
+            box-shadow: 0 0 8px #ff6b6b;
+            animation: flicker 1.5s infinite alternate;
+        }
+
+        .flame {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            width: 12px;
+            height: 20px;
+            background: radial-gradient(circle at center, #ffd700, #ff6b6b);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            filter: drop-shadow(0 0 3px #ffb700);
+            transform: translateX(-50%);
+            animation: flicker-flame 1.5s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% {
+                box-shadow: 0 0 8px #ff6b6b;
+            }
+            100% {
+                box-shadow: 0 0 15px #ff9f43;
+            }
+        }
+
+        @keyframes flicker-flame {
+            0% {
+                filter: drop-shadow(0 0 3px #ffb700);
+                opacity: 1;
+            }
+            100% {
+                filter: drop-shadow(0 0 8px #ffb700);
+                opacity: 0.8;
+            }
+        }
+
+        /* Position candles around the cake */
+        .candle1 { top: 10px; left: 20px; }
+        .candle2 { top: 10px; right: 20px; }
+        .candle3 { bottom: 10px; left: 50px; }
+        .candle4 { bottom: 10px; right: 50px; }
+        .candle5 { top: 50%; left: -10px; transform: translateY(-50%); }
+        .candle6 { top: 50%; right: -10px; transform: translateY(-50%); }
+
+        .footer {
+            margin-top: 25px;
+            font-size: 1.1rem;
+            color: #999;
+        }
+
+        .btn-cut {
+            display: inline-block;
+            background: #e94e77;
+            color: white;
+            font-weight: 700;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            box-shadow: 0 6px 15px rgba(233, 78, 119, 0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            margin-top: 20px;
+        }
+
+        .btn-cut:hover {
+            background: #ff6b6b;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.7);
+            transform: translateY(-3px);
+        }
+
+        /* Candle flow away animation */
+        @keyframes candleFlowAway {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(-150vh) translateX(50px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Cake cut animation */
+        @keyframes cakeCut {
+            0% {
+                clip-path: inset(0 0 0 0);
+            }
+            50% {
+                clip-path: inset(0 50% 0 0);
+            }
+            100% {
+                clip-path: inset(0 100% 0 0);
+                opacity: 0;
+            }
+        }
+
+        .candle.flow-away {
+            animation: candleFlowAway 2s ease 1 forwards;
+        }
+
+        .cake-image.cut {
+            animation-name: cakeCut;
+            animation-duration: 3s;
+            animation-fill-mode: forwards;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 30px;
+                max-width: 95%;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+            .cake-image {
+                max-width: 280px;
+            }
+            .candle {
+                width: 12px;
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px 20px;
+                max-width: 98%;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .cake-image {
+                max-width: 220px;
+            }
+            .candle {
+                width: 10px;
+                height: 30px;
+            }
+        }
+    </style>
+    <script>
+        function cutCake() {
+            // Animate candles flowing away
+            const candles = document.querySelectorAll('.candle');
+            candles.forEach(candle => {
+                candle.classList.add('flow-away');
+            });
+
+            // Animate cake cutting
+            const cake = document.querySelector('.cake-image');
+            cake.classList.add('cut');
+
+            // Show balloons container
+            const balloonsContainer = document.querySelector('.balloons');
+            balloonsContainer.style.display = 'block';
+
+            // Randomize balloon positions on the page
+            const balloons = document.querySelectorAll('.balloon');
+            balloons.forEach(balloon => {
+                // Randomize position within viewport
+                const top = Math.random() * 90 + 'vh';
+                const left = Math.random() * 90 + 'vw';
+                balloon.style.top = top;
+                balloon.style.left = left;
+                balloon.style.right = 'auto'; // reset right if set
+                balloon.classList.remove('blast'); // remove blast animation for position display
+                balloon.style.animation = 'floatUp 5s ease-in-out infinite';
+            });
+
+            // Show popup with animation
+            const popup = document.getElementById('birthday-popup');
+            popup.classList.add('show');
+            popup.classList.remove('hide');
+            popup.style.display = 'flex';
+            const img=document.querySelector('.cake-image');
+            img.style.display='none';
+        }
+
+        function closePopup() {
+            const popup = document.getElementById('birthday-popup');
+            popup.classList.add('hide');
+            popup.classList.remove('show');
+            // Wait for transition to end before hiding completely
+            popup.addEventListener('transitionend', () => {
+                if (popup.classList.contains('hide')) {
+                    popup.style.display = 'none';
+                }
+            }, { once: true });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Birthday Cake</h1>
+        <div class="cake-wrapper">
+            <img src="birthday.jpeg" class="cake-image" />
+            <div class="balloons">
+                <div class="balloon" style="top: 10%; left: 5%; background: #ff4d4d;"></div>
+                <div class="balloon" style="top: 20%; left: 25%; background: #ff944d;"></div>
+                <div class="balloon" style="top: 5%; left: 45%; background: #ffff4d;"></div>
+                <div class="balloon" style="top: 15%; right: 15%; background: #4dff4d;"></div>
+                <div class="balloon" style="top: 25%; right: 5%; background: #4d94ff;"></div>
+                <div class="balloon" style="top: 40%; left: 10%; background: #b84dff;"></div>
+                <div class="balloon" style="top: 35%; right: 10%; background: #ff4db8;"></div>
+                <div class="balloon" style="top: 50%; left: 20%; background: #ffb84d;"></div>
+                <div class="balloon" style="top: 55%; right: 20%; background: #b8ff4d;"></div>
+                <div class="balloon" style="top: 65%; left: 15%; background: #4db8ff;"></div>
+                <div class="balloon" style="top: 70%; right: 15%; background: #944dff;"></div>
+                <div class="balloon" style="top: 80%; left: 10%; background: #ff4d94;"></div>
+            </div>
+            <div class="candle candle1"><div class="flame"></div></div>
+            <div class="candle candle2"><div class="flame"></div></div>
+            <div class="candle candle3"><div class="flame"></div></div>
+            <div class="candle candle4"><div class="flame"></div></div>
+            <div class="candle candle5"><div class="flame"></div></div>
+            <div class="candle candle6"><div class="flame"></div></div>
+        </div><br>
+        <button class="btn-cut" onclick="cutCake()">Cut the Cake</button>
+        <div class="footer">🎂 Celebrate your special day with sweetness! 🎂</div>
+    </div>
+
+    <div id="birthday-popup" style="display:none; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000;">
+        <div style="background: white; padding: 30px 50px; border-radius: 20px; box-shadow: 0 0 20px #e94e77; text-align: center; position: relative; max-width: 90vw;">
+            <h2 style="font-family: 'Pacifico', cursive; font-size: 3rem; color: #e94e77; margin: 0 0 20px;">Happy Birthday!</h2>
+            <p style="font-size: 1.2rem; color: #555; margin-bottom: 30px;">Wishing you a day filled with love, joy, and celebration!</p>
+            <button onclick="closePopup()" style="background: #e94e77; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(233, 78, 119, 0.5);">Close</button>
+        </div>
+    </div>
+</body>
+</html>
